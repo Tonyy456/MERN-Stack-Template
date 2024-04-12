@@ -28,12 +28,6 @@ connectToDatabase().then(async () => {
     app.use(express.static(path.join(__dirname, '../../frontend/build')))
     app.use(express.json());
     app.get(appRouter);
-    router.get("*", (req,res) => {
-            res.sendFile(
-                path.resolve(__dirname, "../../frontend/build/index.html")
-            ); 
-        }
-    ) //wild card. redirect unknown pages to react...
     
     // start server!
     const PORT = process.env.PORT || 5000
