@@ -168,7 +168,7 @@ sudo vi /etc/sysctl.conf # insert at bottom of file vm.swappiness=10
 
 ### setup pm2 dependency
 
-- [ ]  ^^
+- [ ]  Do the following, replace REPO with the name of your repository.
 
 ```bash
 sudo npm install pm2@latest -g;
@@ -178,7 +178,7 @@ pm2 save;
 sudo service nginx restart;
 ```
 
-### setup environment variables.
+### Create MongoDB Cluser and setup environment vars
 
-- [ ]  TODO insert config of .env here…
-- [ ]  copy `backend.env` to server location at `~/backend.env`
+- [ ]  Create a cluster, follow prompts to get URI with username and password and set MONGODB_URI
+- [ ]  copy `backend.env` to the server location at `~/backend.env`

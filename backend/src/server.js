@@ -1,18 +1,43 @@
+/*
+    Author: Anthony D'Alesandro
+
+    Backend code entry point. Setup software, api, and server port.
+*/
+
+// libs
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
+const cookieParser = require('cookie-parser');
+const fs = require('fs-extra')
+
+// Dayjs Configuration
 const dayjs = require('dayjs');
-const app = express();
+var utc = require('dayjs/plugin/utc')
+var timezone = require('dayjs/plugin/timezone')
+dayjs.extend(utc)
+dayjs.extend(timezone)
+dayjs.tz.setDefault("America/New_York")
 
-app.use(express.static(path.join(__dirname, '../../frontend/build')))
-app.use(express.json());
-app.get("*", (req,res) => { 
-  res.sendFile(
-      path.resolve(__dirname, '../../frontend/build/index.html')
-); }) //wild card. redirect unknown pages to react...
+const app = express(); // Express instance, the actual app! gets started further down the page.
 
-// start server!
-const PORT = process.env.PORT || 5000
-app.listen(PORT, () => {
-    const day = dayjs();
-    console.log(`Listening on port ${PORT} ${day.format('MM/DD/YY @ hh:mm:ss')}`);
+const appRouter = require('./config/router')
+const connectToDatabase = require('./config/db'); // asyncronous request to connect to db. only then does server start.
+connectToDatabase().then(async () => {
+    // configure app middleware
+    app.use(express.static(path.join(__dirname, '../../frontend/build')))
+    app.use(express.json());
+    app.get(appRouter);
+    
+    // start server!
+    const PORT = process.env.PORT || 5000
+    app.listen(PORT, () => {
+        const currentTime = dayjs();
+        const message = `
+        Listening on port ${PORT}.
+        Starting server at ${currentTime.format('MM-DD-YY @ hh:mm:ss')}. 
+        time zone: ${dayjs.tz.guess()}.`
+        console.log(message);
+    })
 })
+
