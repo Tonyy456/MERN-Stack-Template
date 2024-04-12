@@ -21,7 +21,7 @@ jobs:
     - name: Update Server Proxy
       run:
         cd frontend;
-        sed -i 's#localhost:5000#localhost:5000#g' package.json;
+        sed -i 's#localhost:5000#165.227.71.143#g' package.json;
         cd ../;
     - name: Install Backend
       run:
