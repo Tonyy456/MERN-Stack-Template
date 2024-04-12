@@ -120,3 +120,4 @@
     pm2 save;
     sudo service nginx restart;
     ```
+10. when ready to start CI services update autobuild.js.yml to run on 'main'
