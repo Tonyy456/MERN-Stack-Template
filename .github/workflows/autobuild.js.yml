@@ -2,7 +2,7 @@ name: Website CI
 
 on: 
   push:
-    branches: [ SOME_RANDOM_BRANCH ] 
+    branches: [ main ] 
 
 jobs:
   build:

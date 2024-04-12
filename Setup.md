@@ -57,39 +57,87 @@
     ```
     
 5. Install a github runner to your github repo fork
-    - [ ]  go to repo→settings→actions→runner→new self hosted runner
-    - follow instructions using the folder made in the last step as replacement to the folder they make.
-    - use sudo in almost all instances
-    - [ ]  run the following code
+
+- [ ]  run `sudo chmod -R 777 /var/www/WEBSITE/`
+- [ ]  go to repo→settings→actions→runner→new self hosted runner
+- follow instructions using the folder made in the last step as replacement to the folder they make.
+- use sudo in almost all instances
+- [ ]  run the following code
+
+```bash
+sudo ./svc.sh install
+sudo ./svc.sh start
+```
+
+1. Configure NGINX
+    - [ ]  open in a text editor: `/etc/nginx/sites-available/default` and make the contents the following instead.
     
     ```bash
-    chmod -R 777 /var/www/WEBSITE/
-    sudo ./svc.sh install
-    sudo ./svc.sh start
+    # /etc/nginx/sites-available/default
+    server {
+            listen 80 default_server;
+            listen [::]:80 default_server;
+    
+            root /var/www/WEBSITE/_work/MERN-Stack-Template/MERN-Stack-Template/;
+            index index.html index.htm index.nginx-debian.html;
+    
+            error_page 404 /404.html; 
+    
+            server_name _;
+    
+            location / {
+                    try_files $uri $uri/ =404;
+                    proxy_pass https://localhost:5000;
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade $http_upgrade;
+                    proxy_set_header Connection 'upgrade';
+                    proxy_set_header Host $host;
+                    proxy_cache_bypass $http_upgrade;
+            }
+    
+            location = /404.html {
+                    root /var/www/html;
+                    internal; # This prevents direct access to the 404.html page
+            }
+    }
     ```
     
-6. Configure NGINX
-    - [ ]  open in a text editor: `/etc/nginx/sites-available/default`
-    - [ ]  add `root /var/www/WEBSITE/_work/REPO/REPO/;` under ‘server’ object
-    - [ ]  add the following code under server.location
+    - [ ]  Create a better 404 page
     
     ```bash
-    proxy_pass https://localhost:5000;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection 'upgrade';
-    proxy_set_header Host $host;
-    proxy_cache_bypass $http_upgrade;
+    sudo vi /var/www/html/404.html
     ```
     
-7. Configure Github Actions
+    - [ ]  Dump the following code in
+    
+    ```bash
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>404 - Page Not Found</title>
+    </head>
+    <body>
+        <h1>404 - Page Not Found</h1>
+        <p>Sorry, the page you are looking for does not exist.</p>
+    </body>
+    </html>
+    ```
+    
+    - [ ]  Test configuration
+    
+    ```bash
+    sudo nginx -t
+    sudo systemctl reload nginx
+    ```
+    
+2. Configure Github Actions
     - [ ]  Allow sudo commands for runner. open `/etc/sudoers.d/tony` with sudo
     
     ```bash
     tony ALL=(ALL) NOPASSWD: /usr/sbin/service nginx start,/usr/sbin/service nginx stop,/usr/sbin/service neginx restart
     ```
     
-8. Give swap space to server.
+3. Give swap space to server.
     - [ ]  ^^
     
     ```bash
@@ -110,7 +158,7 @@
     sudo vi /etc/sysctl.conf # insert at bottom of file vm.swappiness=10
     ```
     
-9. setup pm2 dependency
+4. setup pm2 dependency
     - [ ]  ^^
     
     ```bash
@@ -120,4 +168,3 @@
     pm2 save;
     sudo service nginx restart;
     ```
-10. when ready to start CI services update autobuild.js.yml to run on 'main'
