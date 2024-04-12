@@ -61,6 +61,14 @@ cd /var/www
 sudo mkdir WEBSITE
 ```
 
+### Configure Github Actions
+
+- [ ]  Allow sudo commands for runner. open `/etc/sudoers.d/tony` with sudo
+
+```bash
+tony ALL=(ALL) NOPASSWD: /usr/sbin/service nginx start,/usr/sbin/service nginx stop,/usr/sbin/service neginx restart
+```
+
 ### Install a github runner to your github repo fork
 
 - [ ]  run `sudo chmod -R 777 /var/www/WEBSITE/`
@@ -134,14 +142,6 @@ sudo vi /var/www/html/404.html
 ```bash
 sudo nginx -t
 sudo systemctl reload nginx
-```
-
-### Configure Github Actions
-
-- [ ]  Allow sudo commands for runner. open `/etc/sudoers.d/tony` with sudo
-
-```bash
-tony ALL=(ALL) NOPASSWD: /usr/sbin/service nginx start,/usr/sbin/service nginx stop,/usr/sbin/service neginx restart
 ```
 
 ### Give swap space to server.
