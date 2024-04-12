@@ -66,7 +66,7 @@ sudo mkdir WEBSITE
 - [ ]  Allow sudo commands for runner. open `/etc/sudoers.d/tony` with sudo
 
 ```bash
-tony ALL=(ALL) NOPASSWD: /usr/sbin/service nginx start,/usr/sbin/service nginx stop,/usr/sbin/service neginx restart
+tony ALL=(ALL) NOPASSWD: /usr/sbin/service nginx start,/usr/sbin/service nginx stop,/usr/sbin/service nginx restart
 ```
 
 ### Install a github runner to your github repo fork
