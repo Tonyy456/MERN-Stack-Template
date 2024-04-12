@@ -6,6 +6,7 @@
 
 // libs
 const express = require('express');
+require('dotenv').config();
 const cors = require('cors');
 const path = require('path');
 const cookieParser = require('cookie-parser');
@@ -25,6 +26,7 @@ const appRouter = require('./config/router')
 const connectToDatabase = require('./config/db'); // asyncronous request to connect to db. only then does server start.
 connectToDatabase().then(async () => {
     // configure app middleware
+    app.use(cookieParser());
     app.use(express.json());
     app.use(express.static(path.join(__dirname, '../../frontend/build')))
     app.use(cors({credentials: true, origin: process.env.ORIGIN}))
