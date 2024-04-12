@@ -5,6 +5,13 @@ import { useState } from 'react'
 import './App.css'
 
 function App() {
+    const [num, setNum] = useState(0);
+
+    return (
+        <div style={{margin: 'auto'}}>
+            <button onClick={() => setNum(prev => prev + 2)}> {num}</button>
+        </div>
+    )
 
 }
 
