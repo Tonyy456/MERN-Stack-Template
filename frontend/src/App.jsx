@@ -12,8 +12,8 @@ function App() {
         <div id="theme-provider" data-theme={themes[theme]} >
             <div className='h-screen w-screen'>
                 <div className='h-1/5 flex items-center justify-center'>
-                    <button className='btn font-bold' onClick={() => setTheme(prev => (prev + 1) % themes.length)}>Next Theme </button>
-                    <h1 className="text-3xl font-bold underline ml-10">
+                    <button className='btn font-bold hover:scale-110' onClick={() => setTheme(prev => (prev + 1) % themes.length)}>Next Theme </button>
+                    <h1 className="text-3xl font-bold underline ml-10 hover:scale-110 duration-300">
                         {themes[theme]}
                     </h1>
                 </div>
