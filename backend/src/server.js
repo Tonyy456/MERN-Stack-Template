@@ -24,25 +24,24 @@ const app = express(); // Express instance, the actual app! gets started further
 
 const appRouter = require('./config/router')
 const connectToDatabase = require('./config/db'); // asyncronous request to connect to db. only then does server start.
-// connectToDatabase().then(async () => {
-//     // configure app middleware
-
-// })
-app.use(cookieParser());
-app.use(express.json());
-app.use(express.static(path.resolve(__dirname, "build")));
-console.log(process.env.ORIGIN)
-app.use(cors({credentials: true, origin: process.env.ORIGIN}))
-app.get(appRouter);
-
-// start server!
-const PORT = process.env.PORT || 5000
-app.listen(PORT, () => {
-    const currentTime = dayjs();
-    const message = `
-    Listening on port ${PORT}.
-    Starting server at ${currentTime.format('MM-DD-YY @ hh:mm:ss')}. 
-    time zone: ${dayjs.tz.guess()}.`
-    console.log(message);
+connectToDatabase().then(async () => {
+    // configure app middleware
+    app.use(cookieParser());
+    app.use(express.json());
+    app.use(express.static(path.resolve(__dirname, "build")));
+    app.use(cors({credentials: true, origin: process.env.ORIGIN}))
+    app.get(appRouter);
+    
+    // start server!
+    const PORT = process.env.PORT || 5000
+    app.listen(PORT, () => {
+        const currentTime = dayjs();
+        const message = `
+        Listening on port ${PORT}.
+        Starting server at ${currentTime.format('MM-DD-YY @ hh:mm:ss')}. 
+        time zone: ${dayjs.tz.guess()}.`
+        console.log(message);
+    })
 })
+
 
