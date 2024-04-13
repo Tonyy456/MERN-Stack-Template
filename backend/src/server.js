@@ -28,9 +28,8 @@ connectToDatabase().then(async () => {
     // configure app middleware
     app.use(cookieParser());
     app.use(express.json());
-    const buildPath = path.join(__dirname, '../../frontend/build');
-    console.log(buildPath);
-    app.use(express.static(buildPath));
+    app.use(express.static(path.resolve(__dirname, "../../frontend/build")));
+    app.use(express.static(path.resolve(__dirname, "../../frontend/build/assets")));
     app.use(cors({credentials: true, origin: process.env.ORIGIN}))
     app.get(appRouter);
     
