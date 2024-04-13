@@ -95,23 +95,15 @@ server {
         root /var/www/WEBSITE/_work/MERN-Stack-Template/MERN-Stack-Template/;
         index index.html index.htm index.nginx-debian.html;
 
-        error_page 404 /404.html; 
-
         server_name _;
 
         location / {
-                try_files $uri $uri/ =404;
                 proxy_pass https://localhost:5000;
                 proxy_http_version 1.1;
                 proxy_set_header Upgrade $http_upgrade;
                 proxy_set_header Connection 'upgrade';
                 proxy_set_header Host $host;
                 proxy_cache_bypass $http_upgrade;
-        }
-
-        location = /404.html {
-                root /var/www/html;
-                internal; # This prevents direct access to the 404.html page
         }
 }
 ```
