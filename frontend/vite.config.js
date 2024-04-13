@@ -7,6 +7,6 @@ export default defineConfig({
   base: '',
   build: {
     assetsDir: "static",
-    outDir: './build'
+    outDir: '../backend/src/build'
   }
 })

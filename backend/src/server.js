@@ -30,7 +30,7 @@ const connectToDatabase = require('./config/db'); // asyncronous request to conn
 // })
 app.use(cookieParser());
 app.use(express.json());
-app.use(express.static(path.resolve(__dirname, "../../frontend/build")));
+app.use(express.static(path.resolve(__dirname, "build")));
 console.log(process.env.ORIGIN)
 app.use(cors({credentials: true, origin: process.env.ORIGIN}))
 app.get(appRouter);
