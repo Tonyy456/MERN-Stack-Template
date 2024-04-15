@@ -5,31 +5,36 @@
 */
 
 // libs
-const express = require('express');
 require('dotenv').config();
+const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const cookieParser = require('cookie-parser');
-const fs = require('fs-extra')
 
 // Dayjs Configuration
 const dayjs = require('dayjs');
-var utc = require('dayjs/plugin/utc')
-var timezone = require('dayjs/plugin/timezone')
+const utc = require('dayjs/plugin/utc')
+const timezone = require('dayjs/plugin/timezone')
 dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.tz.setDefault("America/New_York")
 
-const app = express(); // Express instance, the actual app! gets started further down the page.
-
 const appRouter = require('./config/router')
-const connectToDatabase = require('./config/db'); // asyncronous request to connect to db. only then does server start.
-connectToDatabase().then(async () => {
-    // configure app middleware
+const connectToDatabase = require('./config/db');
+
+// create app instance
+const app = express(); // Express instance, the actual app! gets started further down the page.
+const configureAppMiddleware = (app) => {
+    app.use(express.urlencoded({ extended: true }));
     app.use(cookieParser());
     app.use(express.json());
     app.use(express.static(path.resolve(__dirname, "build")));
     app.use(cors({credentials: true, origin: process.env.ORIGIN}))
+}
+
+connectToDatabase().then(async () => {
+    // configure app middleware
+    configureAppMiddleware(app);
     app.get(appRouter);
     
     // start server!

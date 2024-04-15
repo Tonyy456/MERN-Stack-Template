@@ -1,11 +1,10 @@
-/*
-    Author: Anthony D'Alesandro
+/**
+    @author: Anthony D'Alesandro
 
-    user.model.js - the model representing a single user.
+    A model for a database entry.
 */
 const mongoose = require("mongoose")
-const CollectionName = 'users' // lowercase, make plural
-const UserSchema = mongoose.Schema({
+const schema = new mongoose.Schema({
     name:{
         type: String,
         required: true,
@@ -21,7 +20,6 @@ const UserSchema = mongoose.Schema({
         required: true,
         minLength: 6
     }
-}, 
-{ collection: CollectionName })
-const User = mongoose.model(CollectionName, UserSchema)
-module.exports = User
+})
+const model = mongoose.model('users', schema)
+module.exports = model

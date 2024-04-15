@@ -1,36 +1,28 @@
-/*
-    Author: Anthony D'Alesandro
+/**
+    @author: Anthony D'Alesandro
 
-    user.routes.js - routes all user controllers to a path
+    Creates api routes to the controller end points.
 */
 const express = require('express')
-const {
-    login,
-    getUser,
-    refreshToken,
-    logout,
-    getUsers,
-    updateUser,
-    deleteUser,
-    updatePassword
-} = require('./controller')
+const Controller = require('./controller')
+const router = express.Router()
+
 // const requireAuth = require('../../middleware/requireAuth');
-const userRoutes = express.Router()
 
-// create
-userRoutes.post('/login', login)
-userRoutes.post('/logout', logout)
-userRoutes.post('/refresh', refreshToken)
+/* create */
+router.post('/login', Controller.login)
+router.post('/logout', Controller.Logout)
+router.post('/refresh', Controller.RefreshTokens)
 
-// read
-userRoutes.get('/user/:id', getUser)
-userRoutes.get('/user', getUsers)
+/* read */
+router.get('/user/:id', Controller.GetUser)
+router.get('/user', Controller.GetUsers)
 
-// update
-userRoutes.put('/user-det/:id', updateUser)
-userRoutes.put('/user-pas/:id', updatePassword)
+/* update */
+router.put('/user-det/:id', Controller.UpdateUser)
+router.put('/user-pas/:id', Controller.UpdatePassword)
 
-// destroy
-userRoutes.delete('/user/:id', deleteUser)
+/* destroy */
+router.delete('/user/:id', Controller.DeleteUser)
 
-module.exports = userRoutes;
+module.exports = router;
