@@ -7,33 +7,27 @@
 const crypt = require('bcryptjs');
 const User = require('./model');
 const jwt = require('jsonwebtoken')
-require("dotenv").config();
 
 // Cookie alive time
-const tokenAliveTime = '100hr'
-const cookieAliveMs = 1000 * 60 * 60 * 100 // a hundred hours
+const cookieAliveHrs = 100;
 const cookieName = 'user_auth_cookie';
 
 const Controller = {
     /** Clears the user cookies. */
-    _clearUserCookies: function (req, res) {
-        // req.cookies = {};
-        // res.clearCookie('undefined')
-        // res.clearCookie('-1')
+    _clearUserCookies: function (res) {
         res.clearCookie(cookieName)
     },
 
     /** Generates user cookies and sets them in the response */
-    _generateUserCookies: function (req, res) {
-        const userId = req.user;
+    _generateUserCookies: function (userId,req, res) {
         if (userId === -1) return;
         const token = jwt.sign({_id: userId}, process.env.JWT_SECRET_KEY, {
-            expiresIn: tokenAliveTime
+            expiresIn: `${cookieAliveHrs}hr`
         })
         if(token && userId){
             res.cookie(cookieName, token, {
                 path: '/',
-                expires: new Date(Date.now() + cookieAliveMs),
+                expires: new Date(Date.now() + cookieAliveHrs * 60 * 60 * 1000),
                 httpOnly: true,
                 sameSite: 'lax'
             })
@@ -43,48 +37,38 @@ const Controller = {
 
     /** Function to handle login. */
     login: async function (req, res){
-        try {
-            // verify login credentials
-            const {email, password } = req.body;
-            const existingUser = await User.findOne({email: email});
-            if (!existingUser) {
-                return res.status(400).json({message:"Invalid Email / Password"})
-            }
-            const isPasswordCorrect = crypt.compareSync(password, existingUser.password);
-            if (!isPasswordCorrect){
-                return res.status(400).json({message: 'Invalid Email / Password'})
-            }
-
-            // genereate tokens
-            req.user = existingUser._id.toString();
-            Controller._clearUserCookies(req, res);
-            const token = Controller._generateUserCookies(req, res);
-
-            delete existingUser.password; // dont send that over!
-            return res.status(200).json({message: 'Successfully Logged In', token, user: existingUser})
+        // verify login credentials
+        const {email, password} = req.body;
+        const existingUser = await User.findOne({email: email});
+        if (!existingUser) {
+            return res.status(400).json({message:"Invalid Email / Password"})
         }
-        catch (error)
-        {
-            return res.status(500).json({error})
+        const isPasswordCorrect = crypt.compareSync(password, existingUser.password);
+        if (!isPasswordCorrect){
+            return res.status(400).json({message: 'Invalid Email / Password'})
         }
+
+        // generate tokens
+        Controller._clearUserCookies(res);
+        Controller._generateUserCookies(existingUser._id, req, res);
+
+        delete existingUser.password; // dont send that over!
+        return res.status(200).json({message: 'Successfully Logged In', user: existingUser})
+
     },
 
     /** Function to handle a request of user data. */
     GetUser: async function (req, res) {
-        try {
-            const userId = req.params.id;
-            const user = await User.findById(userId, "-password");
-            if (!user) return res.status(404).json({message: "User Not Found"});
-            return res.status(200).json({user})
-        } catch (error) {
-            res.status(500).json({error})
-        }
+        const userId = req.params.id;
+        const user = await User.findById(userId, "-password");
+        if (!user) return res.status(404).json({message: "User Not Found"});
+        return res.status(200).json({user})
     },
 
     /** Refreshes the authentication token and user login credentials. */
     RefreshTokens: async function (req, res) {
         if (req.user === -1) {
-            return res.status(206).json({message: "Authenication Invalid. Must be Logged in to refresh tokens!"})
+            return res.status(206).json({message: "Authentication Invalid. Must be Logged in to refresh tokens!"})
         }
 
         const user = await User.findById(req.user, "-password");

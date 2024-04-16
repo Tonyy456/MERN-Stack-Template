@@ -35,7 +35,7 @@ const configureAppMiddleware = (app) => {
 connectToDatabase().then(async () => {
     // configure app middleware
     configureAppMiddleware(app);
-    app.get(appRouter);
+    app.use(appRouter);
     
     // start server!
     const PORT = process.env.PORT || 5000
