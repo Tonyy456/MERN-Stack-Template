@@ -11,7 +11,7 @@ const Controller = require('./controller')
 const router = express.Router();
 
 /* create */
-router.post('/login', catchErrors(Controller.login))
+router.post('/login', catchErrors(Controller.Login))
 router.post('/logout',  catchErrors(Controller.Logout))
 router.post('/refresh',  catchErrors(Controller.RefreshTokens))
 
@@ -20,8 +20,7 @@ router.get('/user/:id',  catchErrors(Controller.GetUser))
 router.get('/user',  catchErrors(Controller.GetUsers))
 
 /* update */
-router.put('/user-det/:id',  catchErrors(Controller.UpdateUser))
-router.put('/user-pas/:id',  catchErrors(Controller.UpdatePassword))
+router.put('/user/:id',  catchErrors(Controller.UpdateUser))
 
 /* destroy */
 router.delete('/user/:id',  catchErrors(Controller.DeleteUser))
