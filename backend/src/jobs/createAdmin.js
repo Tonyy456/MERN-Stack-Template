@@ -17,18 +17,18 @@ db().then( async () => {
     const name = process.env.ADMIN_NAME;
     const email = process.env.ADMIN_EMAIL;
     const password = process.env.ADMIN_PASSWORD;
+    const type = 'user'
 
     // verify unique user.
     const existingUser = await User.findOne({email});
     if (existingUser) {
-        console.log('email already exists');
-        process.exit();
+        await User.findOneAndDelete({email});
     }
 
     // create user
     const hashedPassword = crypt.hashSync(password);
     const user = new User({
-        name, email, 
+        name, email, type,
         password: hashedPassword
     });
     

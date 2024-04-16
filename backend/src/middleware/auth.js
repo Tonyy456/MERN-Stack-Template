@@ -1,10 +1,11 @@
 const jwt = require('jsonwebtoken')
+const userModel = require('../api/users/model')
 require("dotenv").config();
 
 const cookieName = 'user_auth_cookie'
 
 const auth = async(req, res, next) => {
-    const token = req.cookie[cookieName];
+    const token = req.cookies[cookieName];
     console.log(token);
     req.user = -1;
     jwt.verify(String(token), process.env.JWT_SECRET_KEY, (err, user) => {
@@ -16,9 +17,27 @@ const auth = async(req, res, next) => {
     next();
 }
 
+/**
+ * @param options
+ *      allowTypes: [],
+ */
+const requireAuth = options => async (req, res, next) => {
+    if (req.user === -1 || !req.user) {
+        return res.status(401).json({message: "Invalid authentication. Not logged in."})
+    }
+    const entry = await userModel.findOne({ _id: req.user });
+    if(!entry) return res.status(401).json({message: "Invalid authentication. User was deleted or cookie created incorrectly."})
+    if(options.allowType && !options.allowType.includes(entry.type)) {
+        return res.status(401).json({message: `Invalid user. Must be of the following types: ${options.allowType}`});
+    }
+    next();
+}
 
+const requireAdmin = requireAuth({allowTypes: ['admin']});
 
 module.exports = {
     auth,
+    requireAuth,
+    requireAdmin,
     cookieName
 };
