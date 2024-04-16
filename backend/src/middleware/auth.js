@@ -23,21 +23,21 @@ const auth = async(req, res, next) => {
  */
 const requireAuth = options => async (req, res, next) => {
     if (req.user === -1 || !req.user) {
-        return res.status(401).json({message: "Invalid authentication. Admins only."})
+        return res.status(401).json({message: "Invalid authentication. Not logged in."})
     }
     const entry = await userModel.findOne({ _id: req.user });
     if(!entry) return res.status(401).json({message: "Invalid authentication. User was deleted or cookie created incorrectly."})
     if(options.allowType && !options.allowType.includes(entry.type)) {
-        return res.status(401).json({message: "Invalid authentication. User type not allowed"});
+        return res.status(401).json({message: `Invalid user. Must be of the following types: ${options.allowType}`});
     }
     next();
 }
 
-
-
+const requireAdmin = requireAuth({allowTypes: ['admin']});
 
 module.exports = {
     auth,
     requireAuth,
+    requireAdmin,
     cookieName
 };

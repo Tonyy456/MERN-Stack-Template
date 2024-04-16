@@ -17,7 +17,7 @@ db().then( async () => {
     const name = process.env.ADMIN_NAME;
     const email = process.env.ADMIN_EMAIL;
     const password = process.env.ADMIN_PASSWORD;
-    const type = 'admin'
+    const type = 'user'
 
     // verify unique user.
     const existingUser = await User.findOne({email});
