@@ -8,9 +8,8 @@ const bcrypt = require('bcryptjs');
 const User = require('./model');
 const jwt = require('jsonwebtoken')
 
-// Cookie alive time
+const { cookieName } = require('../../middleware/auth');
 const cookieAliveHrs = 100;
-const cookieName = 'user_auth_cookie';
 
 const Controller = {
     /** Clears the user cookies. */
@@ -36,13 +35,13 @@ const Controller = {
     },
 
     /** Refreshes the authentication token and user login credentials. */
-    RefreshTokens: async function (req, res) {
-        const user = await User.findById(req.user, "-password").lean();
+    RefreshTokens: async function (req,res) {
+        const user = await User.findById(req.user, "-password -__v").lean();
         if (!user) return res.status(500).json({error: "Token seems to match user that does not exist"});
 
         // regenerate cookies.
-        Controller._clearUserCookies(req, res);
-        Controller._generateUserCookies(req, res);
+        Controller._clearUserCookies(res);
+        Controller._generateUserCookies(user._id, req, res);
         return res.status(200).json({message: "Refreshed user login credentials", user})
     },
 
@@ -78,7 +77,7 @@ const Controller = {
         if (req.user === -1) {
             return res.status(400).json({message: "Must be logged in to log out!"})
         }
-        Controller._clearUserCookies(req, res);
+        Controller._clearUserCookies(res);
         return res.status(200).json({message: "Successfully Logged Out!"});
     },
 

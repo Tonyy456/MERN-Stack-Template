@@ -6,23 +6,25 @@
 
 const express = require('express')
 const { catchErrors } = require('../../middleware/catch-errors');
+const { requireAuth } = require('../../middleware/auth');
 const Controller = require('./controller')
 
 const router = express.Router();
+const adminsOnly = requireAuth({allowType: ['admin']})
 
 /* create */
 router.post('/login', catchErrors(Controller.Login))
-router.post('/logout',  catchErrors(Controller.Logout))
-router.post('/refresh',  catchErrors(Controller.RefreshTokens))
+router.post('/logout', catchErrors(Controller.Logout))
+router.post('/refresh', catchErrors(Controller.RefreshTokens))
 
 /* read */
-router.get('/users/:id',  catchErrors(Controller.Get))
-router.get('/users',  catchErrors(Controller.GetAll))
+router.get('/users/:id', adminsOnly, catchErrors(Controller.Get))
+router.get('/users', adminsOnly, catchErrors(Controller.GetAll))
 
 /* update */
-router.put('/users/:id',  catchErrors(Controller.Update))
+router.put('/users/:id', adminsOnly, catchErrors(Controller.Update))
 
 /* destroy */
-router.delete('/users/:id',  catchErrors(Controller.Delete))
+router.delete('/users/:id', adminsOnly, catchErrors(Controller.Delete))
 
 module.exports = router;

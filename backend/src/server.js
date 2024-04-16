@@ -19,6 +19,7 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.tz.setDefault("America/New_York")
 
+const {auth} = require('./middleware/auth');
 const appRouter = require('./config/router')
 const connectToDatabase = require('./config/db');
 
@@ -30,6 +31,7 @@ const configureAppMiddleware = (app) => {
     app.use(express.json());
     app.use(express.static(path.resolve(__dirname, "build")));
     app.use(cors({credentials: true, origin: process.env.ORIGIN}))
+    app.use(auth);
 }
 
 connectToDatabase().then(async () => {
