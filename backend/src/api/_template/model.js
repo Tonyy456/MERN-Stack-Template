@@ -5,21 +5,19 @@
 */
 const mongoose = require("mongoose")
 const schema = new mongoose.Schema({
-    name:{
+    data1:{
         type: String,
         required: true,
     },
-    email: {
+    data2: {
         type: String,
         required: true,
-        unique: true,
-        index: true
     },
-    password: {
-        type: String,
+    data3: {
+        type: Number,
         required: true,
-        minLength: 6
     }
 })
-const model = mongoose.model('users', schema)
+// TODO: name entry here. lowercase singular prefered.
+const model = mongoose.model('thing', schema)
 module.exports = model

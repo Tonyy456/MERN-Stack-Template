@@ -1,222 +1,159 @@
-/*
-    Author: Anthony D'Alesandro
+/**
+    @author: Anthony D'Alesandro
 
-    user.controller.js - the controller to handle the API calls to anything related to the user model.
+    Methods available to the client.
 */
 
-const crypt = require('bcryptjs');
+const bcrypt = require('bcryptjs');
 const User = require('./model');
 const jwt = require('jsonwebtoken')
-require("dotenv").config();
 
-// set both to the tune of a couple hours.
-const tokenAliveTime = '100hr'
-const cookieAliveMs = 1000 * 60 * 60 * 100 // a hundred hours
-const cookieName = 'tonydal_com_user_auth_cookie';
+// Cookie alive time
+const cookieAliveHrs = 100;
+const cookieName = 'user_auth_cookie';
 
-/*
-    Clear Cookies. Mostly for logout & refresh functionality.
-*/
-async function clearUserCookies(req,res) {
-    // req.cookies = {};
-    // res.clearCookie('undefined')
-    // res.clearCookie('-1')
-    res.clearCookie(cookieName)
-    return;
-}
+const Controller = {
+    /** Clears the user cookies. */
+    _clearUserCookies: function (res) {
+        res.clearCookie(cookieName)
+    },
 
-/*
-    Generate cookies for user authentication.
-
-    generates it for req.user
-*/
-async function generateUserCookies(req, res) {
-    const userId = req.user;
-    if (userId == -1) return;
-    const token = jwt.sign({_id: userId}, process.env.JWT_SECRET_KEY, {
-        expiresIn: tokenAliveTime
-    })
-    if(token && userId){
-        res.cookie(cookieName, token, {
-            path: '/',
-            expires: new Date(Date.now() + cookieAliveMs),
-            httpOnly: true,
-            sameSite: 'lax'
+    /** Generates user cookies and sets them in the response. */
+    _generateUserCookies: function (userId,req, res) {
+        if (userId === -1) return;
+        const token = jwt.sign({_id: userId}, process.env.JWT_SECRET_KEY, {
+            expiresIn: `${cookieAliveHrs}hr`
         })
-    }
-    return token;
-}
+        if(token && userId){
+            res.cookie(cookieName, token, {
+                path: '/',
+                expires: new Date(Date.now() + cookieAliveHrs * 60 * 60 * 1000),
+                httpOnly: true,
+                sameSite: 'lax'
+            })
+        }
+        return token;
+    },
 
-/*
-    Login user. Gives authentication cookies.
+    /** Refreshes the authentication token and user login credentials. */
+    RefreshTokens: async function (req, res) {
+        const user = await User.findById(req.user, "-password").lean();
+        if (!user) return res.status(500).json({error: "Token seems to match user that does not exist"});
 
-    METHOD: post
-*/
-const login = async(req, res) => {
-    try {
+        // regenerate cookies.
+        Controller._clearUserCookies(req, res);
+        Controller._generateUserCookies(req, res);
+        return res.status(200).json({message: "Refreshed user login credentials", user})
+    },
+
+    /** Function to handle login.
+     * @body: {email, password}
+     * */
+    Login: async function (req, res){
         // verify login credentials
-        const {email, password } = req.body;
-        const existingUser = await User.findOne({email: email});
+        const {email, password} = req.body;
+        const existingUser = await User.findOne({email: email}).lean();
         if (!existingUser) {
             return res.status(400).json({message:"Invalid Email / Password"})
         }
-        const isPasswordCorrect = crypt.compareSync(password, existingUser.password);
+        const isPasswordCorrect = bcrypt.compareSync(password, existingUser.password);
         if (!isPasswordCorrect){
             return res.status(400).json({message: 'Invalid Email / Password'})
         }
 
-        // genereate tokens
-        req.user = existingUser._id.toString();
-        clearUserCookies(req, res);
-        const token = generateUserCookies(req, res);
+        // generate tokens
+        Controller._clearUserCookies(res);
+        Controller._generateUserCookies(existingUser._id, req, res);
 
         delete existingUser.password; // dont send that over!
-        return res.status(200).json({message: 'Successfully Logged In', token, user: existingUser})
-    } 
-    catch (error)
-    {
-        return res.status(500).json({error})
-    }
-}
+        delete existingUser.__v;
+        return res.status(200).json({message: 'Successfully Logged In', user: existingUser})
 
-/*
-    Get details on user. 
+    },
 
-    METHOD: get
-    Requires: Authenticated
-    Parameter: id of user
-*/
-const getUser = async (req, res) => {
-    try {
+    /** Function to handle logout.
+     * @body: {}
+     * */
+    Logout: async function  (req, res) {
+        if (req.user === -1) {
+            return res.status(400).json({message: "Must be logged in to log out!"})
+        }
+        Controller._clearUserCookies(req, res);
+        return res.status(200).json({message: "Successfully Logged Out!"});
+    },
+
+    /** Function to handle a request of user data.
+     * @requires: req.params.id
+     * @body: {}
+     * */
+    Get: async function (req, res) {
         const userId = req.params.id;
-        const user = await User.findById(userId, "-password");
+        const user = await User.findById(userId, "-password").lean();
         if (!user) return res.status(404).json({message: "User Not Found"});
         return res.status(200).json({user})
-    } catch (error) {
-        res.status(500).json({error})
-    }
-}
+    },
 
-/*
-    Refresh authenticated token. Used to maintain login status between pages. 
+    /** Function to get all users.
+     * @body: {}
+     * */
+    GetAll: async function (req, res){
+        try {
+            const users = await User.find().lean();
+            res.status(200).json({users})
+        } catch (error) {
+            res.status(500).json({error})
+        }
+    },
 
-    METHOD: post
-    Requires: Authenticated
-*/
-const refreshToken = async (req,res,next) => {
-    if (req.user == -1) {
-        return res.status(206).json({message: "Authenication Invalid. Must be Logged in to refresh tokens!"})
-    }
-    
-    const user = await User.findById(req.user, "-password");
-    if (!user) return res.status(500).json({error: "Token seems to match user that does not exist"});
-    
-    // regenerate cookies.
-    clearUserCookies(req, res);
-    const token = generateUserCookies(req, res);
-    return res.status(200).json({message: "Refreshed user login credentials", user})
-}
-
-/*
-    Logout user. 
-
-    METHOD: post
-    Requires: Authenticated
-*/
-const logout = async (req,res,next) => {
-    if (req.user == -1) {
-        return res.status(400).json({message: "Must be logged in to log out!"})
-    }
-    clearUserCookies(req, res);
-    return res.status(200).json({message: "Successfully Logged Out!"});
-}
-
-/*
-    Get list of all users. 
-
-    METHOD: get
-    Requires: Authenticated
-*/
-const getUsers = async (req,res) => {
-    try { 
-        const users = await User.find();
-        res.status(200).json({users})
-    } catch (error) {
-        res.status(500).json({error})
-    }
-}
-
-/*
-    Update details on user. 
-    NOT IMPLEMENTED
-*/
-const updateUser = async (req,res) => {
-    try {
+    /** Updates user based on request data.
+     * @requires: req.params.id
+     * @body: contains any {email, name, password, newpassword}
+     * */
+    Update: async function (req, res) {
+        // verify user exists.
+        const {email, name, password, newpassword } = req.body;
         const userId = req.params.id;
-        const {email, name } = req.body.inputs;
-        const existingUser = await User.findOne({_id: userId});
+        const existingUser = await User.findOne({_id: userId}).lean();
         if (!existingUser) {
-            return res.status(400).json({message:"Not an existing user. mostly likely a server side issue"})
+            return res.status(400).json({message:"User ID does not exist!"})
         }
 
-        await User.findOneAndUpdate({_id: existingUser._id}, {email: email, name: name})
+        // the object that represents WHAT will be updated in final function call.
+        let update = {}
+        if(email) update.email = email;
+        if(name) update.name = name;
 
-        return res.status(204).json({message: 'Successfully Updated Admin User'})
-    } catch (error) {
-        res.status(500).json({error})
-    }
-}
-/* 
+        // update password if both old and new password are passed.
+        if(password && newpassword) {
+            const isPasswordCorrect = bcrypt.compareSync(password, existingUser.password);
 
-*/
-const updatePassword = async (req, res) => {
-    try {
-        const userId = req.params.id;
-        const {oldpassword, newpassword } = req.body.inputs;
-        
-        const existingUser = await User.findOne({_id: userId});
-        if (!existingUser) {
-            return res.status(400).json({message:"Invalid user."})
+            // dont allow someone to update password to the same thing...
+            if (newpassword === password && isPasswordCorrect) return res.status(400).json({message:"Use a different password."})
+
+            if (!isPasswordCorrect){
+                return res.status(400).json({message: 'Invalid Password.'})
+            } else {
+                update.password = bcrypt.hashSync(newpassword);
+            }
         }
-        const isPasswordCorrect = crypt.compareSync(oldpassword, existingUser.password);
-        if (!isPasswordCorrect){
-            return res.status(400).json({message: 'Invalid Email / Password'})
-        }
-        const hashedPassword = crypt.hashSync(newpassword);
+        const updatedUser = await User.findOneAndUpdate({_id: userId}, update, {new: true}).lean()
+        delete updatedUser.password;
+        delete updatedUser.__v;
+        updatedUser.passwordUpdated = !!update.password; // true if password is defined.
+        return res.status(200).json({message: 'Successfully Updated User.', updatedUser})
+    },
 
-        await User.findOneAndUpdate({_id: existingUser._id}, {password: hashedPassword})
-
-        return res.status(204).json({message: 'Successfully Updated Admin User'})
-    } catch (error) {
-        res.status(500).json({error})
-    }
+    /** Deletes a user from the database.
+     * @requires: req.params.id
+     * @body: {}
+     * */
+    Delete: async function (req, res) {
+        const user = await User.findByIdAndDelete({_id: req.params.id}).lean();
+        if (!user) return res.status(404).json({message: "Unable to find user: " + req.params.id});
+        return res.status(202).json({message: "Deleted user: " + req.params.id});
+    },
 }
 
-/*
-    delete user. 
 
-    METHOD: delete
-    Requires: Authenticated
-*/
-const deleteUser = async (req,res) => {
-    try {
-        if (req.user == -1) return res.status(401).json({error: "Not authorized to delete a user!"});
-        if (req.user == req.params.id) return res.status(400).json({error: "Can not delete currently logged in user!"});
-        const user = await User.findByIdAndDelete(req.params.id);
-        if (!user) return res.status(404).json({error: "Unable to find user " + req.params.id});
-        return res.status(204).json({message: "Deleted user " + req.params.id});
-    } catch (error) {
-        res.status(500).json({error})
-    }
-}
 
-module.exports = {
-    login,
-    getUser,
-    refreshToken, 
-    logout, 
-    getUsers,
-    updateUser,
-    deleteUser,
-    updatePassword
-}
+module.exports = Controller
