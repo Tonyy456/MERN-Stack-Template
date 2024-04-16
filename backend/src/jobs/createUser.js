@@ -12,7 +12,6 @@ require('dotenv').config();
 const db = require('../config/db');
 const User = require('../api/users/model');
 const crypt = require('bcryptjs');
-const prompt = require('prompt-sync')();
 
 db().then( async () => {
     const name = process.env.ADMIN_NAME;
