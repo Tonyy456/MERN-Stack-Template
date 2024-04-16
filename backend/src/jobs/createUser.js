@@ -1,6 +1,6 @@
 
 const db = require('../config/db');
-const User = require('../api/users/user.model');
+const User = require('../api/users/model');
 const crypt = require('bcryptjs');
 const prompt = require('prompt-sync')();
 
