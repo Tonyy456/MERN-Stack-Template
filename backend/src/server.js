@@ -1,5 +1,5 @@
-/*
-    Author: Anthony D'Alesandro
+/**
+    @author: Anthony D'Alesandro
 
     Backend code entry point. Setup software, api, and server port.
 */

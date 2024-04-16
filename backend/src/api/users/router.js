@@ -1,8 +1,8 @@
 /**
-    @author: Anthony D'Alesandro
+ @author: Anthony D'Alesandro
 
-    Creates api routes to the controller end points.
-*/
+  Creates api routes to the controller end points.
+ */
 
 const express = require('express')
 const { catchErrors } = require('../../middleware/catch-errors');
@@ -16,13 +16,13 @@ router.post('/logout',  catchErrors(Controller.Logout))
 router.post('/refresh',  catchErrors(Controller.RefreshTokens))
 
 /* read */
-router.get('/user/:id',  catchErrors(Controller.GetUser))
-router.get('/user',  catchErrors(Controller.GetUsers))
+router.get('/users/:id',  catchErrors(Controller.Get))
+router.get('/users',  catchErrors(Controller.GetAll))
 
 /* update */
-router.put('/user/:id',  catchErrors(Controller.UpdateUser))
+router.put('/users/:id',  catchErrors(Controller.Update))
 
 /* destroy */
-router.delete('/user/:id',  catchErrors(Controller.DeleteUser))
+router.delete('/users/:id',  catchErrors(Controller.Delete))
 
 module.exports = router;

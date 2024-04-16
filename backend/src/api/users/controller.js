@@ -18,7 +18,7 @@ const Controller = {
         res.clearCookie(cookieName)
     },
 
-    /** Generates user cookies and sets them in the response */
+    /** Generates user cookies and sets them in the response. */
     _generateUserCookies: function (userId,req, res) {
         if (userId === -1) return;
         const token = jwt.sign({_id: userId}, process.env.JWT_SECRET_KEY, {
@@ -35,8 +35,19 @@ const Controller = {
         return token;
     },
 
+    /** Refreshes the authentication token and user login credentials. */
+    RefreshTokens: async function (req, res) {
+        const user = await User.findById(req.user, "-password").lean();
+        if (!user) return res.status(500).json({error: "Token seems to match user that does not exist"});
+
+        // regenerate cookies.
+        Controller._clearUserCookies(req, res);
+        Controller._generateUserCookies(req, res);
+        return res.status(200).json({message: "Refreshed user login credentials", user})
+    },
+
     /** Function to handle login.
-     * @body: {email, password
+     * @body: {email, password}
      * */
     Login: async function (req, res){
         // verify login credentials
@@ -60,30 +71,9 @@ const Controller = {
 
     },
 
-    /** Function to handle a request of user data. */
-    GetUser: async function (req, res) {
-        const userId = req.params.id;
-        const user = await User.findById(userId, "-password").lean();
-        if (!user) return res.status(404).json({message: "User Not Found"});
-        return res.status(200).json({user})
-    },
-
-    /** Refreshes the authentication token and user login credentials. */
-    RefreshTokens: async function (req, res) {
-        if (req.user === -1) {
-            return res.status(206).json({message: "Authentication Invalid. Must be Logged in to refresh tokens!"})
-        }
-
-        const user = await User.findById(req.user, "-password").lean();
-        if (!user) return res.status(500).json({error: "Token seems to match user that does not exist"});
-
-        // regenerate cookies.
-        Controller._clearUserCookies(req, res);
-        Controller._generateUserCookies(req, res);
-        return res.status(200).json({message: "Refreshed user login credentials", user})
-    },
-
-    /** Function to handle logout. */
+    /** Function to handle logout.
+     * @body: {}
+     * */
     Logout: async function  (req, res) {
         if (req.user === -1) {
             return res.status(400).json({message: "Must be logged in to log out!"})
@@ -92,8 +82,21 @@ const Controller = {
         return res.status(200).json({message: "Successfully Logged Out!"});
     },
 
-    /** Function to get all users. */
-    GetUsers: async function (req, res){
+    /** Function to handle a request of user data.
+     * @requires: req.params.id
+     * @body: {}
+     * */
+    Get: async function (req, res) {
+        const userId = req.params.id;
+        const user = await User.findById(userId, "-password").lean();
+        if (!user) return res.status(404).json({message: "User Not Found"});
+        return res.status(200).json({user})
+    },
+
+    /** Function to get all users.
+     * @body: {}
+     * */
+    GetAll: async function (req, res){
         try {
             const users = await User.find().lean();
             res.status(200).json({users})
@@ -106,7 +109,7 @@ const Controller = {
      * @requires: req.params.id
      * @body: contains any {email, name, password, newpassword}
      * */
-    UpdateUser: async function (req, res) {
+    Update: async function (req, res) {
         // verify user exists.
         const {email, name, password, newpassword } = req.body;
         const userId = req.params.id;
@@ -140,8 +143,11 @@ const Controller = {
         return res.status(200).json({message: 'Successfully Updated User.', updatedUser})
     },
 
-    /** Deletes a user from the database. */
-    DeleteUser: async function (req, res) {
+    /** Deletes a user from the database.
+     * @requires: req.params.id
+     * @body: {}
+     * */
+    Delete: async function (req, res) {
         const user = await User.findByIdAndDelete({_id: req.params.id}).lean();
         if (!user) return res.status(404).json({message: "Unable to find user: " + req.params.id});
         return res.status(202).json({message: "Deleted user: " + req.params.id});
