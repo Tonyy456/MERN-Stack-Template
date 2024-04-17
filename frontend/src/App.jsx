@@ -1,28 +1,29 @@
 // HOW TO: import files. first fromt src/assets and second from public
 // import reactLogo from './assets/react.svg'
 // import viteLogo from '/vite.svg'
-import { useState } from 'react'
+/**
+ *
+ */
+// import { useState } from 'react'
 import './App.css'
+import Navbar from './components/Navbar.jsx'
+import Router from './containers/Router.jsx';
+import { BrowserRouter } from "react-router-dom"
+import { AuthProvider } from './containers/AuthProvider.jsx'
 
 const themes = ["cupcake", "mytheme", "luxury", "forest"];
+const theme = themes[1];
 function App() {
-    const [theme, setTheme] = useState(0);
-
     return (
-        <div id="theme-provider" data-theme={themes[theme]} >
-            <div className='h-screen w-screen'>
-                <div className='h-1/5 flex items-center justify-center'>
-                    <button className='btn font-bold hover:scale-110' onClick={() => setTheme(prev => (prev + 1) % themes.length)}>Next Theme </button>
-                    <h1 className="text-3xl font-bold underline ml-10 hover:scale-110 duration-300">
-                        {themes[theme]}
-                    </h1>
+        <BrowserRouter>
+            <AuthProvider>
+                <div data-theme={theme}>
+                    <Navbar/>
+                    <Router/>
                 </div>
-
-            </div>
-        </div>
-
+            </AuthProvider>
+        </BrowserRouter>
     )
-
 }
 
 export default App
