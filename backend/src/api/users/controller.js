@@ -36,8 +36,9 @@ const Controller = {
 
     /** Refreshes the authentication token and user login credentials. */
     RefreshTokens: async function (req,res) {
+        if(req.user === -1 || !req.user) return res.status(204).json({message: "Invalid authentication. Not logged in."});
         const user = await User.findById(req.user, "-password -__v").lean();
-        if (!user) return res.status(500).json({error: "Token seems to match user that does not exist"});
+        if (!user) return res.status(204).json({error: "Token seems to match user that does not exist"});
 
         // regenerate cookies.
         Controller._clearUserCookies(res);
