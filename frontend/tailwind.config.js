@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+/*eslint-env node*/
 export default {
   content: [
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -22,6 +23,6 @@ export default {
       }
     ]
   },
-  plugins: [require("daisyui")],
+  plugins: [require("@tailwindcss/typography"),require("daisyui")],
 }
 

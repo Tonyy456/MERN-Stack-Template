@@ -5,7 +5,7 @@ import {
     loginUser,
     logoutUser,
     refreshUser
-} from './commands.jsx';
+} from './user-commands.jsx';
 
 
 const initialState = {

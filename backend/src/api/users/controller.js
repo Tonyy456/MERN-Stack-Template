@@ -11,6 +11,12 @@ const jwt = require('jsonwebtoken')
 const { cookieName } = require('../../middleware/auth');
 const cookieAliveHrs = 100;
 
+const validateEmail = (email) => {
+    return email.match(
+        /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+    );
+};
+
 const Controller = {
     /** Clears the user cookies. */
     _clearUserCookies: function (res) {
@@ -112,6 +118,7 @@ const Controller = {
     Update: async function (req, res) {
         // verify user exists.
         const {email, name, password, newpassword } = req.body;
+        if(!email && !name && !password && !newpassword) return res.status(400).json({message:"Data is not parseable."})
         const userId = req.params.id;
         const existingUser = await User.findOne({_id: userId}).lean();
         if (!existingUser) {
@@ -120,7 +127,10 @@ const Controller = {
 
         // the object that represents WHAT will be updated in final function call.
         let update = {}
-        if(email) update.email = email;
+        if(email) {
+            if (!validateEmail(email)) return res.status(400).json({message:"Email is not valid"})
+            update.email = email;
+        }
         if(name) update.name = name;
 
         // update password if both old and new password are passed.
@@ -135,7 +145,7 @@ const Controller = {
             } else {
                 update.password = bcrypt.hashSync(newpassword);
             }
-        }
+        } else if (password || newpassword) return res.status(400).json({message: 'Must provide both old password and new password.'})
         const updatedUser = await User.findOneAndUpdate({_id: userId}, update, {new: true}).lean()
         delete updatedUser.password;
         delete updatedUser.__v;

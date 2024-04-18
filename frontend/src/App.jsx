@@ -7,9 +7,9 @@
 // import { useState } from 'react'
 import './App.css'
 import Navbar from './components/Navbar.jsx'
-import Router from './containers/Router.jsx';
+import Router from './routes/Router.jsx';
 import { BrowserRouter } from "react-router-dom"
-import { AuthProvider } from './containers/AuthProvider.jsx'
+import { AuthProvider } from '@/providers/AuthProvider.jsx'
 
 const themes = ["cupcake", "mytheme", "luxury", "forest"];
 const theme = themes[1];
@@ -17,7 +17,7 @@ function App() {
     return (
         <BrowserRouter>
             <AuthProvider>
-                <div data-theme={theme}>
+                <div data-theme={theme} className="min-h-screen">
                     <Navbar/>
                     <Router/>
                 </div>

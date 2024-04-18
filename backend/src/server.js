@@ -4,7 +4,7 @@
     Backend code entry point. Setup software, api, and server port.
 */
 
-// libs
+// lib
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');

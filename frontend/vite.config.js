@@ -10,6 +10,11 @@ export default defineConfig({
     assetsDir: "static",
     outDir: '../backend/src/build'
   },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src')
+    }
+  },
   server: {
     proxy: {
       '/api': {

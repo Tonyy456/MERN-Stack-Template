@@ -7,7 +7,7 @@
  */
 function Navbar() {
     return (
-        <div className="navbar bg-base-100">
+        <div className="navbar bg-base-100 border-b-black border-b">
             <div className="navbar-start">
                 <div className="dropdown">
                     <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -46,6 +46,12 @@ function Navbar() {
                     </li>
                     <li><a href="/">Item 3</a></li>
                 </ul>
+                <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
+                    <div className="w-10 rounded-full">
+                        <img alt="Tailwind CSS Navbar component"
+                             src="../assets/user-icon.png"/>
+                    </div>
+                </div>
             </div>
         </div>
     );

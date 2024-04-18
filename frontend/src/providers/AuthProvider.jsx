@@ -3,8 +3,8 @@
 */
 import { useEffect } from "react"
 import { Provider, useDispatch } from 'react-redux'
-import { store } from "../redux/store";
-import { refreshUser } from "../redux/commands";
+import { store } from "../stores/user.jsx";
+import { refreshUser } from "../stores/user-commands.jsx";
 
 // allows children components to access user and isAuthenicated
 // eslint-disable-next-line react/prop-types
