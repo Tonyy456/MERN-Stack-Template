@@ -18,11 +18,11 @@ function Select(props) {
 
     // Render input form.
     return (
-        <label className="form-control w-full max-w-xs">
+        <label className="form-control w-full max-w-xs m-0">
             <div className="label">
-                <span className="label-text">{label}</span>
+                <span className="label-text text-lg font-medium">{label}</span>
             </div>
-            <select onChange={handleChange} value={value || ""} className="select select-bordered">
+            <select onChange={handleChange} value={value || ""} className="select select-bordered select-neutral bg-base-200 text-base-content">
                 {options.map((option) =>
                     <option key={option}>{option}</option>
                 )}

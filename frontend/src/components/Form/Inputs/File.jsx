@@ -24,9 +24,9 @@ function File(props) {
     }
 
     return (
-        <label className="form-control w-full max-w-xs">
+        <label className="form-control w-full max-w-xs m-0">
             <div className="label">
-                <span className="label-text">{label}</span>
+                <span className="label-text text-lg font-medium">{label}</span>
                 <span className="label-text-alt">{altText}</span>
             </div>
             <input
@@ -34,7 +34,7 @@ function File(props) {
                 ref={inputRef}
                 name={name}
                 onChange={handleChange}
-                className="file-input file-input-bordered w-full max-w-xs"
+                className="file-input file-input-primary file-input-bordered w-full max-w-xs"
                 {...rest}
             />
         </label>

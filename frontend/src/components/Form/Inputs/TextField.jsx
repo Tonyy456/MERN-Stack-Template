@@ -14,22 +14,24 @@ function TextField(props) {
 
     // Render input form.
     return (
-        <label className="form-control flex flex-row items-center gap-2 min-w-full">
+        <div className="form-control w-full m-0">
             <div className="label">
-                <span className="label-text">{label}</span>
+                <span className="label-text text-lg font-medium">{label}</span>
             </div>
-            <textarea
-                className="textarea textarea-bordered textarea-xs w-full max-w-xs"
-                placeholder={label}
-                value={value || ""}
-                name={name}
-                onChange={handleChange}
-            >
-            </textarea>
-        </label>
+            <label className="form-control flex flex-row items-center gap-2 min-w-full">
+                <textarea
+                    className="textarea textarea-neutral bg-base-200 text-base-content textarea-bordered w-full max-w-full"
+                    placeholder={label}
+                    value={value || ""}
+                    name={name}
+                    onChange={handleChange}
+                >
+                </textarea>
+            </label>
+        </div>
 
-)
-    ;
+
+    )
 }
 
 export default TextField;

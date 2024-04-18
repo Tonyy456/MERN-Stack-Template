@@ -1,11 +1,15 @@
-
-
 /**
  *
  * @returns {JSX.Element}
  * @constructor
  */
+
+import {useContext} from "react";
+import {ThemeContext} from "@/providers/ThemeProvider.jsx";
+import {themes} from '@/config/Themes.jsx'
+
 function Navbar() {
+    const {setTheme, nextTheme} = useContext(ThemeContext);
     return (
         <div className="navbar bg-base-100 border-b-black border-b">
             <div className="navbar-start">
@@ -23,8 +27,17 @@ function Navbar() {
                         <li>
                             <a>Parent</a>
                             <ul className="p-2">
-                                <li><a href='/form-components'>Form Components</a></li>
-                                <li><a href='/image-forms'>Test Image Form</a></li>
+                                <li><a href='/test-form'>Test Image Form</a></li>
+                                <li>
+                                    <select
+                                        onChange={e => setTheme(e.target.value)}
+                                        className="select select-primary select-sm w-full max-w-xs"
+                                    >
+                                        {themes.map((item, index) => (
+                                            <option key={index}>{item}</option>
+                                        ))}
+                                    </select>
+                                </li>
                             </ul>
                         </li>
                         <li><a href="/">Item 3</a></li>

@@ -19,16 +19,16 @@ function Range(props) {
 
     const currentValue = value || props.min || 0;
     return (
-        <label className="form-control w-full max-w-xs">
+        <label className="form-control w-full max-w-xs m-0">
             <div className="label">
-                <span className="label-text">{label}</span>
-                <span className="label-text-alt">{value}</span>
+                <span className="label-text text-lg font-medium">{label}</span>
+                <span className="label-text-alt text-primary text-lg font-medium">{value}</span>
             </div>
             <input
                 name={name}
                 onChange={handleChange}
                 type="range"
-                className="range"
+                className="range range-primary"
                 min={0} max="100" value={currentValue}
                 {...rest}
             />

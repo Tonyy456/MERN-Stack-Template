@@ -16,14 +16,14 @@ function Toggle(props) {
 
     // Render input form.
     return (
-        <div className="form-control">
+        <div className="form-control m-0">
             <label className="label cursor-pointer">
-                <span className="label-text mr-4">Remember me</span>
                 <input
                     onChange={handleChange}
                     type="checkbox"
-                    className="toggle"
+                    className="toggle toggle-primary"
                     checked={value || false} />
+                <span className="label-text ml-2 text-lg font-medium">Remember me</span>
             </label>
         </div>
     );

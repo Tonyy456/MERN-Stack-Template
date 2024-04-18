@@ -38,7 +38,7 @@ function Form(props) {
 
     /** Render Component */
     return (
-        <form onSubmit={onSubmit} className="flex gap-1 flex-col items-start min-w-full flex-grow">
+        <form onSubmit={onSubmit} className="m-0 flex gap-3 flex-col items-start min-w-full flex-grow">
             {childrenWithProps}
             <input className='btn btn-primary' type="submit" value={props.actionName || "Submit"} />
         </form>

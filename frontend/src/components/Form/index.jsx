@@ -5,6 +5,8 @@
 
 import Form from './Form.jsx';
 
+export { default as TagField } from './Inputs/TagField.jsx';
+export { default as Files } from './Inputs/Files.jsx'
 export { default as TextField } from './Inputs/TextField.jsx';
 export { default as Select } from './Inputs/Select.jsx';
 export { default as Checkbox } from './Inputs/Checkbox.jsx';

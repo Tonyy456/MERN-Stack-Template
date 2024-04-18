@@ -18,18 +18,24 @@ function RadioGroup(props) {
 
     // Render input form.
     return (
-        <div className="flex">
-            {options.map((option, index) => {
-                const checked = value === option;
-                return (
-                    <div key={index} className="form-control">
-                        <label className="label cursor-pointer">
-                            <span className="label-text mr-4">{option}</span>
-                            <input type="radio" onChange={(e) => handleChange(option)} name={name} value={name} className="radio checked:bg-blue-500" checked={checked}/>
-                        </label>
-                    </div>
-                )
-            })}
+        <div className="form-group m-0">
+            <div className="label">
+                <span className="label-text text-lg font-medium">{label}</span>
+            </div>
+            <div className="flex">
+                {options.map((option, index) => {
+                    const checked = value === option;
+                    return (
+                        <div key={index} className="form-control">
+                            <label className="label cursor-pointer">
+                                <span className="label-text mr-4">{option}</span>
+                                <input type="radio" onChange={(e) => handleChange(option)} name={name} value={name}
+                                       className="radio radio-primary" checked={checked}/>
+                            </label>
+                        </div>
+                    )
+                })}
+            </div>
         </div>
     )
 }
