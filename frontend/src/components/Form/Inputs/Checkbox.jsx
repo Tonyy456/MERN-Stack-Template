@@ -1,7 +1,7 @@
 import {useEffect} from 'react';
 
 function Checkbox(props) {
-    const {name, onChange, value, initialize} = props;
+    const {name, onChange, value, initialize, label} = props;
 
     // Called on first render to initialize useState in Form.
     useEffect(() => initialize({name: name, value: false}),[])
@@ -17,13 +17,13 @@ function Checkbox(props) {
     // Render input form.
     return (
         <div className="form-control m-0">
-            <label className="label cursor-pointer">
+            <label className="label cursor-pointer justify-start w-min">
                 <input
                     onChange={handleChange}
                     type="checkbox"
                     className="checkbox checkbox-primary"
                     checked={value || false} />
-                <span className="label-text ml-2 text-lg font-medium">Remember me</span>
+                <span className="label-text ml-2 text-lg font-medium">{label}</span>
             </label>
         </div>
     );

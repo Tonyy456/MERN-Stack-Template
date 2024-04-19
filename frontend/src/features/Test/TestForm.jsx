@@ -6,6 +6,7 @@ import Form, {
     Select,
     Range,
     RadioGroup,
+    Block,
     File,
     Checkbox,
     Files,
@@ -31,24 +32,43 @@ function TestForm(props) {
     useEffect(() => {
         populateFieldsAsync();
     }, []);
-    const options = ['Option 1', 'Option 2', 'Option 3']
+    const options = [
+        {title: 'StarWars', value: 5},
+        {title: 'Meet the Fockers', value: 3},
+        {title: 'The Hustle', value: 9},
+    ]
     const handleSubmit = (e,v) => {
         console.log(v);
     }
+    const getOptionLabel = (a) => a.title;
     return (
-        <div className="p-4 m-4 overflow-x-scroll border">
-            <Form onSubmit={handleSubmit} defaultValue={state}>
-                <Toggle name="toggle" label="Toggle"/>
-                <Checkbox name="checkbox" label="Checkbox"/>
-                <TextField name="textfield" label="Text Field"/>
-                <Text name="password" label="Text"/>
-                <TagField name="tags" options={options} label="Tags"/>
-                <Select name="select" options={options} label="Select"/>
-                <Range name="range" label="Range"/>
-                <RadioGroup name="radiogroup" options={options}  label="Radio Group"/>
-                <File name="file" label="File"/>
-                <Files name="files" label="Files"/>
-            </Form>
+        <div className="overflow-hidden">
+            <h1 className="w-fit m-auto text-4xl mt-4"> React Test Components. </h1>
+            <div className="p-4 m-auto overflow-x-scroll max-w-2xl">
+                <Form onSubmit={handleSubmit} defaultValue={state}>
+                    <Block>
+                        <TextField name="textfield" label="Text Field"/>
+                        <Text name="password" label="Text"/>
+                    </Block>
+                    <TagField name="tags" label="Tags" options={options} getOptionLabel={getOptionLabel} freeSolo/>
+                    <Block>
+                        <Select name="select" getOptionLabel={getOptionLabel} options={options} label="Select"/>
+                        <RadioGroup name="radiogroup" getOptionLabel={getOptionLabel} options={options}
+                                    label="Radio Group"/>
+                    </Block>
+                    <Block>
+                        <Range name="range" label="Range"/>
+                        <Block vertical fitW>
+                            <Toggle name="toggle" label="Toggle"/>
+                            <Checkbox name="checkbox" label="Checkbox"/>
+                        </Block>
+                    </Block>
+                    <Block fitW>
+                        <File name="file" label="File"/>
+                        <Files name="files" label="Files"/>
+                    </Block>
+                </Form>
+            </div>
         </div>
     );
 }

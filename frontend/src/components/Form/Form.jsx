@@ -3,7 +3,7 @@ import React, {useState, useEffect} from 'react';
 function Form(props) {
     const [formData, setFormData] = useState({});
 
-    /** Handle Defaults */
+    /** Handle filling in defaults. */
     useEffect(() => {
         if(props.defaultValue) setFormData(prev => {
             return {
@@ -13,7 +13,7 @@ function Form(props) {
         })
     }, [props.defaultValue])
 
-    /** Handling Children Components */
+    /** Handle children components */
     const onChildChange = (e) => {
         setFormData(prev => {return {...prev, [e.name]: e.value}});
     }
@@ -23,9 +23,15 @@ function Form(props) {
     const childAddOnProps = {onChange: onChildChange, initialize: onChildInit};
     const childrenWithProps = React.Children.map(props.children, (child) => {
         if (React.isValidElement(child)) {
-            return React.cloneElement(child,
-                {value: formData[child.props.name], ...childAddOnProps}
-            );
+            if(child.type.name === 'Block'){
+                return React.cloneElement(child,
+                    {formData: formData, childAddOnProps: childAddOnProps}
+                );
+            } else {
+                return React.cloneElement(child,
+                    {value: formData[child.props.name], ...childAddOnProps}
+                );
+            }
         }
         return child;
     });

@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 
 function Select(props) {
-    const {label, options, name, onChange, initialize, value} = props;
+    const {label, options, name, onChange, getOptionLabel = (a)=>a, initialize, value} = props;
 
     // Called on first render to initialize useState in Form.
     useEffect(() => {
@@ -12,7 +12,7 @@ function Select(props) {
     const handleChange = (e) => {
         onChange({
             name: name,
-            value: e.target.value
+            value: options[e.target.value]
         })
     }
 
@@ -22,9 +22,9 @@ function Select(props) {
             <div className="label">
                 <span className="label-text text-lg font-medium">{label}</span>
             </div>
-            <select onChange={handleChange} value={value || ""} className="select select-bordered select-neutral bg-base-200 text-base-content">
-                {options.map((option) =>
-                    <option key={option}>{option}</option>
+            <select onChange={handleChange} value={options.indexOf(value) || ""} className="select select-bordered select-neutral bg-base-200 text-base-content">
+                {options.map((option,index) =>
+                    <option key={index} value={index}>{getOptionLabel(option)}</option>
                 )}
             </select>
         </label>

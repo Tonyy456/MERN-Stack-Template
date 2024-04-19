@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 
 function RadioGroup(props) {
-    const {label, options, name, onChange, initialize, value} = props;
+    const {label, options, name, onChange, initialize, value, getOptionLabel} = props;
 
     // Called on first render to initialize useState in Form.
     useEffect(() => {
@@ -28,7 +28,7 @@ function RadioGroup(props) {
                     return (
                         <div key={index} className="form-control">
                             <label className="label cursor-pointer">
-                                <span className="label-text mr-4">{option}</span>
+                                <span className="label-text mr-4">{getOptionLabel(option)}</span>
                                 <input type="radio" onChange={(e) => handleChange(option)} name={name} value={name}
                                        className="radio radio-primary" checked={checked}/>
                             </label>

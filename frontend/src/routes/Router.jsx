@@ -8,7 +8,7 @@ import Login from '@/features/Auth/Login.jsx'
 
 import TestForm from "@/features/Test/TestForm.jsx";
 
-const PathConstants = {
+export const PathConstants = {
     HOME: "/",
     SETTINGS: "/settings",
     LOGIN: "/login",

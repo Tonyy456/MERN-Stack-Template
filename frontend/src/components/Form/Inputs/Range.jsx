@@ -19,7 +19,7 @@ function Range(props) {
 
     const currentValue = value || props.min || 0;
     return (
-        <label className="form-control w-full max-w-xs m-0">
+        <label className="form-control w-screen max-w-96 m-0">
             <div className="label">
                 <span className="label-text text-lg font-medium">{label}</span>
                 <span className="label-text-alt text-primary text-lg font-medium">{value}</span>
