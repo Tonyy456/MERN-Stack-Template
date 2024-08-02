@@ -1,0 +1,7 @@
+.profileIcon {
+    width:100%;
+    height:100%;
+    display:inline-block;
+    /*-webkit-mask:url("@/assets/user-icon.png") center/contain;*/
+    mask:url("@/assets/user-icon.png") center/contain;
+}

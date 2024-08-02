@@ -1,16 +1,13 @@
-import {useEffect} from 'react';
+import React from 'react';
 
-function TextField(props) {
-    const {label, name, onChange, initialize, value} = props;
+function TextAreaField(props) {
+    const {form, label, name} = props;
+    if(!form || !name) return <p className="text-red-600"> Text Area field missing props. </p>
+    const value = form.state[name];
 
-    // Called on first render to initialize useState in Form.
-    useEffect(() => initialize({name: name, value: ""}),[])
-
-    // Handle change and alert form.
-    const handleChange = (e) => { onChange({
-        name: name,
-        value: e.target.value
-    })}
+    const handleChange = (e) => {
+        form.onChange({name: name, value: e.target.value})
+    }
 
     // Render input form.
     return (
@@ -34,4 +31,4 @@ function TextField(props) {
     )
 }
 
-export default TextField;
+export default TextAreaField;

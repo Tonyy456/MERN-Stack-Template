@@ -5,19 +5,17 @@ import React, {useEffect} from 'react';
  * label, altText, name, value,
  * min, max
  */
-function Range(props) {
-    const {label, name, onChange, initialize, value, ...rest} = props;
+function RangeField(props) {
+    const {form, label, name, ...rest} = props;
+    if(!form || !name) return <p className="text-red-600"> Checkbox field missing props. </p>
+    const min = props.min || 0
+    const max = props.max || Math.max(100,min)
+    const value = form.state[name] || props.min;
 
-    // Called on first render to initialize useState in Form.
-    useEffect(() => initialize({name: name, value: props.min || 0}),[])
-
-
-    // Handle change and alert form.
     const handleChange = (e) => {
-        if(onChange) onChange({name: name, value: e.target.value})
+        form.onChange({name: name, value: e.target.value})
     }
 
-    const currentValue = value || props.min || 0;
     return (
         <label className="form-control w-screen max-w-96 m-0">
             <div className="label">
@@ -29,7 +27,7 @@ function Range(props) {
                 onChange={handleChange}
                 type="range"
                 className="range range-primary"
-                min={0} max="100" value={currentValue}
+                min={min} max={max} value={value}
                 {...rest}
             />
         </label>
@@ -37,4 +35,4 @@ function Range(props) {
         ;
 }
 
-export default Range;
+export default RangeField;

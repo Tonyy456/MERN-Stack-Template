@@ -4,25 +4,25 @@
 /**
  *
  */
-// import { useState } from 'react'
 import './App.css'
 import Navbar from './components/Navbar.jsx'
 import Router from './routes/Router.jsx';
 import { BrowserRouter } from "react-router-dom"
-import { AuthProvider } from '@/providers/AuthProvider.jsx'
-import ThemeProvider from '@/providers/ThemeProvider.jsx'
+import { AuthProvider } from '@/context/AuthProvider.jsx'
+import MessageProvider from "@/context/MessageProvider.jsx";
+import ThemeProvider from '@/context/ThemeProvider.jsx'
 
-// const themes = ["cupcake", "mytheme", "luxury", "forest"];
-// const theme = themes[1];
 function App() {
     return (
         <BrowserRouter>
             <AuthProvider>
                 <ThemeProvider>
-                    <div className="min-h-screen">
-                        <Navbar/>
-                        <Router/>
-                    </div>
+                        <div className="min-h-screen">
+                            <Navbar/>
+                            <MessageProvider>
+                                <Router/>
+                            </MessageProvider>
+                        </div>
                 </ThemeProvider>
             </AuthProvider>
         </BrowserRouter>

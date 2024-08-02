@@ -1,20 +1,18 @@
 import React, {useEffect} from 'react';
 
-function RadioGroup(props) {
-    const {label, options, name, onChange, initialize, value, getOptionLabel} = props;
-
-    // Called on first render to initialize useState in Form.
-    useEffect(() => {
-        if (options) initialize({name: name, value: options[0] || ""})
-    },[options])
+function RadioGroupField(props) {
+    const {form, label, options, name, getOptionLabel = (e) => e, ...rest} = props;
+    if(!form || !name || !options) return <p className="text-red-600"> Radio group field missing props. </p>
 
     // // Handle change and alert form.
     const handleChange = (e) => {
-        onChange({
+        form.onChange({
             name: name,
             value: e
         })
     }
+    const value = form.state[name] || options[0];
+
 
     // Render input form.
     return (
@@ -24,7 +22,7 @@ function RadioGroup(props) {
             </div>
             <div className="flex">
                 {options.map((option, index) => {
-                    const checked = value === option;
+                    const checked = getOptionLabel(value) === getOptionLabel(option);
                     return (
                         <div key={index} className="form-control">
                             <label className="label cursor-pointer">
@@ -40,4 +38,4 @@ function RadioGroup(props) {
     )
 }
 
-export default RadioGroup;
+export default RadioGroupField;

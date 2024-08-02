@@ -1,11 +1,9 @@
-import {useEffect, useRef} from 'react';
+import React, {useEffect, useRef} from 'react';
 
-function File(props) {
-    const {label, name, altText, onChange, initialize, value, ...rest} = props;
+function FileField(props) {
+    const {form, label, name, altText, ...rest} = props;
     const inputRef = useRef(null);
-
-    // Called on first render to initialize useState in Form.
-    useEffect(() => initialize({name: name, value: null}),[])
+    const value = (!form || !name) ? null : form.state[name];
 
     // "control" input by setting it through javascript
     useEffect(() => {
@@ -17,10 +15,13 @@ function File(props) {
         }
     }, [value]);
 
+    if(!form || !name) return <p className="text-red-600"> File field missing props. </p>
+
+
     // Handle change and alert form.
     const handleChange = (e) => {
         const value = e.target.files && e.target.files.length > 0 ? e.target.files[0] : null
-        if(onChange) onChange({name: e.target.name, value: value})
+        form.onChange({name: e.target.name, value: value})
     }
 
     return (
@@ -41,4 +42,4 @@ function File(props) {
     );
 }
 
-export default File;
+export default FileField;

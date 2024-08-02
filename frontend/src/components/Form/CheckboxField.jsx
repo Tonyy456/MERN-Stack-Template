@@ -1,14 +1,13 @@
-import {useEffect} from 'react';
+import React, {useEffect} from 'react';
 
-function Checkbox(props) {
-    const {name, onChange, value, initialize, label} = props;
-
-    // Called on first render to initialize useState in Form.
-    useEffect(() => initialize({name: name, value: false}),[])
+function CheckboxField(props) {
+    const {form, name, label} = props;
+    if(!form || !name) return <p className="text-red-600"> Checkbox field missing props. </p>
+    const value = form.state[name] || false;
 
     // Handle change and alert form.
     const handleChange = (e) => {
-        onChange({
+        form.onChange({
             name: name,
             value: e.target.checked
         })
@@ -22,11 +21,11 @@ function Checkbox(props) {
                     onChange={handleChange}
                     type="checkbox"
                     className="checkbox checkbox-primary"
-                    checked={value || false} />
+                    checked={value} />
                 <span className="label-text ml-2 text-lg font-medium">{label}</span>
             </label>
         </div>
     );
 }
 
-export default Checkbox;
+export default CheckboxField;

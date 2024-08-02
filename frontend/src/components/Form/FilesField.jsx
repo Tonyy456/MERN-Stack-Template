@@ -1,59 +1,58 @@
 import {useEffect, useRef} from 'react';
 import trashIcon from '@/assets/x.svg'
 
-function Files(props) {
-    const {
-        label, name, altText, onChange, initialize, value,
-        ...rest} = props;
+function FilesField(props) {
+    // Process props
+    const { form, name, label, altText, ...rest} = props;
+    const value = ((!form || !name) ? null : form.state[name]) || [];
+
+    // Hooks
     const inputRef = useRef(null);
-
-    // Called on first render to initialize useState in Form.
-    useEffect(() => initialize({name: name, value: []}),[])
-
-    // "control" input by setting it through javascript
-    useEffect(() => {
+    useEffect(() => { // "control" input by setting it through javascript
         if (value && inputRef.current) {
             const dataTransfer = new DataTransfer();
             value.forEach(item => dataTransfer.items.add(item));
             inputRef.current.files = dataTransfer.files;
-            //inputRef.current.focus();
         }
     }, [value]);
+
+    // Check if component is used correctly.
+    if(!form || !name) return <p className="text-red-600"> Files field missing props.</p>
 
     // Handle change and alert form.
     const handleChange = (e) => {
         const newValue = [...value, ...e.target.files];
-        if(onChange) onChange({name: name, value: newValue})
+        form.onChange({name: name, value: newValue})
     }
-
     const handleDelete = (file) => {
         let newValue = value.slice();
         newValue.splice(newValue.indexOf(file), 1)
-        if(onChange) onChange({name: name, value: newValue})
+        form.onChange({name: name, value: newValue})
     }
+
     return (
-        <div className="m-0">
-            <span className="label-text text-lg font-medium">{label}</span>
+        <div>
+            <div className="m-0 w-max flex flex-row gap-4 items-center">
+                <span className="label-text text-lg font-medium">{label}</span>
+                <label className="form-control w-full max-w-xs">
+                    {/*<div className="label">*/}
+                    {/*    <span className="label-text-alt">{altText}</span>*/}
+                    {/*</div>*/}
+                    <input
+                        type="file"
+                        ref={inputRef}
+                        name={name}
+                        onChange={handleChange}
+                        className="file-input file-input-primary file-input-bordered w-full max-w-xs"
+                        {...rest}
+                        multiple
+                    />
+                </label>
+            </div>
             {value && Array.isArray(value) && <div className="">
                 {value.map((item, index) => <FileCard onDelete={handleDelete} file={item} key={index}/>)}
             </div>}
-            <label className="form-control w-full max-w-xs">
-                <div className="label">
-                    <span className="label-text-alt">{altText}</span>
-                </div>
-                <input
-                    type="file"
-                    ref={inputRef}
-                    name={name}
-                    onChange={handleChange}
-                    className="file-input file-input-primary file-input-bordered w-full max-w-xs"
-                    {...rest}
-                    multiple
-                />
-            </label>
-
         </div>
-
     );
 }
 
@@ -72,11 +71,10 @@ function FileCard(props) {
         </div>
     )
 }
-
 function GetFileSizeString(size) {
     if (size < 1000) return `${(size).toFixed(0)} B`
     else if (size < 1000000) return `${(size/1000).toFixed(0)} KB`
     else return `${(size/1000000).toFixed(0)} MB`
 }
 
-export default Files;
+export default FilesField;

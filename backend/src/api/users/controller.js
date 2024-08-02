@@ -9,6 +9,7 @@ const User = require('./model');
 const jwt = require('jsonwebtoken')
 
 const { cookieName } = require('../../middleware/auth');
+const e = require("express");
 const cookieAliveHrs = 100;
 
 const validateEmail = (email) => {
@@ -18,38 +19,56 @@ const validateEmail = (email) => {
 };
 
 const Controller = {
-    /** Clears the user cookies. */
-    _clearUserCookies: function (res) {
-        res.clearCookie(cookieName)
+    clearCookie: function (res) {
+        res.clearCookie(cookieName);
     },
-
-    /** Generates user cookies and sets them in the response. */
-    _generateUserCookies: function (userId,req, res) {
-        if (userId === -1) return;
-        const token = jwt.sign({_id: userId}, process.env.JWT_SECRET_KEY, {
-            expiresIn: `${cookieAliveHrs}hr`
+    /** Generates user cookies.
+     *
+     * - always generate a new access token
+     * - recycle refresh token if possible.
+     * */
+    generateAccessToken: function (payload) {
+        const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+            expiresIn: `${process.env.ACCESS_TOKEN_EXPIRES_IN}hr`
         })
-        if(token && userId){
-            res.cookie(cookieName, token, {
-                path: '/',
-                expires: new Date(Date.now() + cookieAliveHrs * 60 * 60 * 1000),
-                httpOnly: true,
-                sameSite: 'lax'
-            })
-        }
-        return token;
+        const accessTokenExpiresAt = (new Date(Date.now() + process.env.ACCESS_TOKEN_EXPIRES_IN * 3600 * 1000)).toISOString();
+        return {accessToken, accessTokenExpiresAt};
     },
+    getRefreshToken: async function (machineID, user, payload) {
+        const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+            expiresIn: `${process.env.REFRESH_TOKEN_EXPIRES_IN}hr`
+        })
+        const refreshTokenExpiresAt = (new Date(Date.now() + process.env.REFRESH_TOKEN_EXPIRES_IN * 3600 * 1000)).toISOString();
 
+
+        const oldTokens = user.refreshTokens.filter(x => x.machineID === machineID)
+        await User.findOneAndUpdate({_id: user._id}, {$pullAll: { refreshTokens: oldTokens}});
+
+        // create a new entry.
+        const newUser = await User.findOneAndUpdate({_id: user._id}, {$push: { refreshTokens: {
+                token: refreshToken,
+                machineID: machineID,
+                creationDate: (new Date()).toISOString()
+            }}}
+        );
+
+        return {refreshToken, refreshTokenExpiresAt};
+    },
     /** Refreshes the authentication token and user login credentials. */
     RefreshTokens: async function (req,res) {
-        if(req.user === -1 || !req.user) return res.status(204).json({message: "Invalid authentication. Not logged in."});
-        const user = await User.findById(req.user, "-password -__v").lean();
+        if(req.userID === -1 || !req.userID) return res.status(401).json({message: "Invalid authentication. Not logged in."});
+        let user = await User.findById(req.userID, "-password -__v").lean();
         if (!user) return res.status(204).json({error: "Token seems to match user that does not exist"});
 
-        // regenerate cookies.
-        Controller._clearUserCookies(res);
-        Controller._generateUserCookies(user._id, req, res);
-        return res.status(200).json({message: "Refreshed user login credentials", user})
+        const accessTokenResponseObject = Controller.generateAccessToken({_id: req.userID })
+        const refreshTokenResponseObject = await Controller.getRefreshToken(req.machineID, user, {_id: req.userID})
+        delete user.refreshTokens;
+        console.log(`User refreshed auth to server: ${user.name} `)
+        return res.status(200).json({message: "Refreshed user login credentials",
+            ...accessTokenResponseObject,
+            ...refreshTokenResponseObject,
+            user
+        })
     },
 
     /** Function to handle login.
@@ -68,12 +87,21 @@ const Controller = {
         }
 
         // generate tokens
-        Controller._clearUserCookies(res);
-        Controller._generateUserCookies(existingUser._id, req, res);
+        const accessTokenResponseObject = Controller.generateAccessToken({_id: existingUser._id })
+        const refreshTokenResponseObject = await Controller.getRefreshToken(req.machineID, existingUser, {_id: existingUser._id})
 
         delete existingUser.password; // dont send that over!
         delete existingUser.__v;
-        return res.status(200).json({message: 'Successfully Logged In', user: existingUser})
+        console.log(`User logged in to server: ${existingUser.name} `)
+        return res.status(200).json({message: 'Successfully Logged In',
+            ...accessTokenResponseObject,
+            ...refreshTokenResponseObject,
+            user: {
+                _id: existingUser._id,
+                name: existingUser.name,
+                email: existingUser.email,
+            },
+        })
 
     },
 
@@ -81,10 +109,14 @@ const Controller = {
      * @body: {}
      * */
     Logout: async function  (req, res) {
-        if (req.user === -1) {
+        if (req.userID === -1) {
             return res.status(400).json({message: "Must be logged in to log out!"})
         }
-        Controller._clearUserCookies(res);
+        const existingUser = await User.findOne({_id: req.userID}).lean();
+        const oldTokens = existingUser.refreshTokens.filter(x => x.machineID === req.machineID)
+        await User.findOneAndUpdate({_id: existingUser._id}, {$pullAll: { refreshTokens: oldTokens}});
+        console.log(`User logged out: ${existingUser.name}`)
+        Controller.clearCookie(res);
         return res.status(200).json({message: "Successfully Logged Out!"});
     },
 
@@ -94,7 +126,7 @@ const Controller = {
      * */
     Get: async function (req, res) {
         const userId = req.params.id;
-        const user = await User.findById(userId, "-password").lean();
+        const user = await User.findById(userId, "-password -refreshTokens").lean();
         if (!user) return res.status(404).json({message: "User Not Found"});
         return res.status(200).json({user})
     },

@@ -1,20 +1,12 @@
 import React, {useEffect} from 'react';
 
-function Toggle(props) {
-    const {label, name, onChange, value, initialize} = props;
-
-    // Called on first render to initialize useState in Form.
-    useEffect(() => initialize({name: name, value: false}),[])
-
-    // Handle change and alert form.
+function ToggleField(props) {
+    const {form, label, name} = props;
+    if(!form || !name) return <p className="text-red-600"> Toggle field missing props. </p>
+    const value = form.state[name]
     const handleChange = (e) => {
-        onChange({
-            name: name,
-            value: e.target.checked
-        })
+        form.onChange({name: name, value: e.target.checked})
     }
-
-    // Render input form.
     return (
         <div className="form-control m-0">
             <label className="label cursor-pointer justify-start w-min">
@@ -29,4 +21,4 @@ function Toggle(props) {
     );
 }
 
-export default Toggle;
+export default ToggleField;

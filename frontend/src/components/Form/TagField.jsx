@@ -1,33 +1,34 @@
 /**
  * @author: Anthony D'Alesandro
  */
-import {useEffect, useState, useRef} from 'react';
-import './TagField.css'
+import React, {useEffect, useState, useRef} from 'react';
 
 function TagField(props) {
-    const {
-        label, name, onChange, initialize, value,
-        options, freeSolo, getOptionLabel = (a) => a,
+    const {form, name, label, freeSolo, getOptionLabel = (a) => a,
         ...rest} = props;
+
     const [deleting, setDeleting] = useState([]);
     const [currentText, setCurrentText] = useState('');
-    useEffect(() => initialize({name: name, value: []}),[])
 
     // Handle Dropdown open and closing.
     const [focused, setFocused] = useState(false);
     const inputBoxRef = useRef(null);
     const dropdownRef = useRef(null);
-    const onMouseDownClock = (e) => {
+    const onMouseDownClick = (e) => {
         const inInput = inputBoxRef.current && inputBoxRef.current.contains(e.target);
         const inDropdown = dropdownRef.current && dropdownRef.current.contains(e.target);
         setFocused(inInput || inDropdown)
     };
-    useEffect(() => {
-        document.addEventListener("mousedown", onMouseDownClock);
+    useEffect(() => { // subscribe to mouse click
+        document.addEventListener("mousedown", onMouseDownClick);
         return () => {
-            document.removeEventListener("mousedown", onMouseDownClock);
+            document.removeEventListener("mousedown", onMouseDownClick);
         };
     },[]);
+
+    if(!form || !name) return <p className="text-red-600"> Tag field missing props. </p>
+    const value = form.state[name] || [];
+    const options = rest.options || [];
 
     // Update current text state.
     const handleTextChange = (e) => {
@@ -41,27 +42,28 @@ function TagField(props) {
             addTag(currentText)
         }
     }
+
     const addTag = (tag) => {
         if(!value.includes(tag)) {
             const newValue = freeSolo ? value.slice() : [];
             newValue.push(tag);
-            props.onChange({name: name, value: newValue});
+            form.onChange({name: name, value: newValue});
             setCurrentText('')
             return true;
         }
         return false;
     }
+
     const removeTag = (tag) => {
         setTimeout(() => {
             const newValue = value.slice();
             newValue.splice(newValue.indexOf(tag), 1)
             setDeleting(prev => prev.filter(item => item !== tag))
-            props.onChange({name: name, value: newValue})
+            form.onChange({name: name, value: newValue})
         },300)
     }
 
     // Render input form.
-    if(!value) return <></>
     return (
         <div className="form-control m-0 w-full">
             <div className="label">
@@ -70,14 +72,12 @@ function TagField(props) {
             </div>
             <div className="relative h-fit">
                 <label
-
                     className={`input input-bordered flex flex-row flex-wrap h-fit
-                    items-center gap-2 bg-base-200 text-base-content min-w-full pt-2 pb-2
-                    `}
+                    items-center gap-2 bg-base-200 text-base-content min-w-full pt-2 pb-2`}
                 >
                     <div id="current-tags" className="flex flex-wrap h-fit flex-row gap-1">
                         {value.map((option, index) =>{
-                                return (<span
+                            return (<span
                                     onClick={() => {
                                         removeTag(option)
                                         setDeleting(prev => ([...prev, option]))
@@ -86,12 +86,12 @@ function TagField(props) {
                                     className={`
                                     duration-300
                                     data-[removing=true]:scale-0
-                                    hover:bg-primary hover:text-primary-content p-1 pl-2 pr-2 bg-neutral rounded-md text-neutral-content text-nowrap text-ellipsis`}
+                                    hover:bg-accent hover:text-accent-content p-1 pl-2 pr-2 bg-primary rounded-md text-primary-content text-nowrap text-ellipsis`}
                                     key={index}
                                 >
-                            {getOptionLabel(option)}
+                            {getOptionLabel(option) || option}
                         </span>
-                        )})}
+                            )})}
                     </div>
                     <input
                         ref={inputBoxRef}
@@ -112,7 +112,7 @@ function TagField(props) {
                     className={`${(focused) ? 'absolute' : 'hidden'} -bottom-2 z-50 w-full translate-y-full bg-neutral text-neutral-content p-2 rounded-md`}
                     values={options
                         .filter(item => getOptionLabel(item).toUpperCase().indexOf(currentText.toUpperCase()) >= 0)
-                        .filter(item => !value.includes(item))
+                        .filter(item => !value.some(value => getOptionLabel(value) === getOptionLabel(item)))
                     }
                 />
             </div>
