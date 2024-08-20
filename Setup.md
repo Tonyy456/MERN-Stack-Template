@@ -71,10 +71,10 @@ tony ALL=(ALL) NOPASSWD: /usr/sbin/service nginx start,/usr/sbin/service nginx s
 
 ### Install a github runner to your github repo fork
 
-- [ ]  run `sudo chmod -R 777 /var/www/WEBSITE/`
 - [ ]  go to repo→settings→actions→runner→new self hosted runner
 - follow instructions using the folder made in the last step as replacement to the folder they make.
 - use sudo in almost all instances
+- run this command after unzipping the folder so the setup works with proper permissions. `sudo chmod -R 777 /var/www/WEBSITE/`
 - [ ]  run the following code
 
 ```bash
