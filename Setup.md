@@ -205,5 +205,5 @@ AWS_BUCKET_REGION=
 
 ### Create MongoDB Cluser and setup environment vars
 
-- [ ]  Create a cluster, follow prompts to get URI with username and password and set MONGODB_URI
-- [ ]  copy `backend.env` to the server location at `~/backend.env`
+- [ ]  Create a cluster, follow prompts to get URI with username and password and set MONGODB_URI in your env file
+- [ ] whitelist the server ip and your local working ip on mongodb by going to security.
