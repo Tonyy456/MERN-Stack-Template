@@ -170,6 +170,44 @@ pm2 save;
 sudo service nginx restart;
 ```
 
+### Setup environment file on server
+- [ ] edit .github/workflows and insert the location of your .env file on the server
+```
+    - name: Insert Environment Variables
+      run:
+        cp [[ENV FILE LOCATION]] ./backend/.env
+```
+- [ ] insert the following as your .env. Do this both for the above file and ./backend/.env on your local machine
+```
+MONGODB_URI=
+DB_NAME=
+ORIGIN=
+ACCESS_TOKEN_SECRET=
+ACCESS_TOKEN_EXPIRES_IN=
+REFRESH_TOKEN_SECRET=
+REFRESH_TOKEN_EXPIRES_IN=
+
+AWS_BUCKET_NAME=
+AWS_BUCKET_REGION=
+AWS_BUCKET_ACCESS_KEY=
+AWS_BUCKET_SECRET_ACCESS_KEY=
+
+ADMIN_EMAIL=
+ADMIN_PASSWORD=
+ADMIN_NAME=
+
+EMAIL_API=
+
+STRIPE_PUBLIC_KEY=
+STRIPE_PRIVATE_KEY=
+STRIPE_WEBHOOK_SECRET_KEY=
+
+AWS_BUCKET_NAME=
+AWS_BUCKET_ACCESS_KEY=
+AWS_BUCKET_SECRET_ACCESS_KEY=
+AWS_BUCKET_REGION=
+```
+
 ### Create MongoDB Cluser and setup environment vars
 
 - [ ]  Create a cluster, follow prompts to get URI with username and password and set MONGODB_URI
