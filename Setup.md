@@ -92,7 +92,7 @@ server {
         listen 80 default_server;
         listen [::]:80 default_server;
 
-        root /var/www/WEBSITE/_work/MERN-Stack-Template/MERN-Stack-Template/;
+        root /var/www/WEBSITE/_work/[[REPO NAME]]/[[REPO NAME]]/backend/src/build/;
         index index.html index.htm index.nginx-debian.html;
 
         server_name _;
