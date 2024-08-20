@@ -92,13 +92,13 @@ server {
         listen 80 default_server;
         listen [::]:80 default_server;
 
-        root /var/www/WEBSITE/_work/[[REPO NAME]]/[[REPO NAME]]/backend/src/build/;
+        root /var/www/WEBSITE/_work/[[REPO NAME]]/[[REPO NAME]]/;
         index index.html index.htm index.nginx-debian.html;
 
         server_name _;
 
         location / {
-                proxy_pass https://localhost:5000;
+                proxy_pass http://localhost:5000;
                 proxy_http_version 1.1;
                 proxy_set_header Upgrade $http_upgrade;
                 proxy_set_header Connection 'upgrade';
