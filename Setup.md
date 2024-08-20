@@ -177,6 +177,8 @@ sudo service nginx restart;
       run:
         cp [[ENV FILE LOCATION]] ./backend/.env
 ```
+- [ ] edit .github/workflows such that the 'sed' command replaces localhost for the IP of your server
+
 - [ ] insert the following as your .env. Do this both for the above file and ./backend/.env on your local machine
 ```
 MONGODB_URI=
